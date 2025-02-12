@@ -28,7 +28,14 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     watch,
     control,
     formState: { errors },
-  } = useForm<Inputs>()
+  } = useForm<Inputs>({
+    defaultValues:{
+        classRooms:[{name:""}],
+        name:"",
+        subjects:[{name:""}],
+        timeRange:[{startTime:"",endTime:""}]
+    }
+  })
   const timeRangeArray = useFieldArray({
     control,
     name: "timeRange",
@@ -67,8 +74,6 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     }
 
     const [hours, minutes] = value.split(":").map(Number)
-    console.log("h", hours)
-    console.log("m", minutes)
     if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
       return "Неверный формат времени. Используйте формат HH:mm"
     }
@@ -102,16 +107,26 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     return true
   }
   return (
-    <Dialog open={openModal} onClose={closeModal} className="relative z-50">
+    <Dialog open={openModal} onClose={closeModal} className="relative z-50 max-h-[80vh] overflow-auto">
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-        <DialogPanel className="w-1/2 space-y-4 bg-black border p-12">
+        <DialogPanel className="w-1/2 space-y-4 bg-black border p-12 overflow-auto">
           <DialogTitle className="font-bold ">Добавить шаблон</DialogTitle>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh] overflow-auto gap-2">
             <input {...register("name")} placeholder="Название шаблона" />
             <div className="max-h-60 overflow-y-auto flex flex-col gap-2">
               {timeRangeArray.fields.map((field, index) => (
-                <div className="flex flex-col gap-2 text-black" key={field.id}>
-                  <div className="flex gap-2 w-full">
+                <div className="flex flex-col gap-2 text-blackn relative" key={field.id}>
+                  <span
+                    onClick={() => {
+                      if (timeRangeArray.fields.length > 1) {
+                        timeRangeArray.remove(index)
+                      }
+                    }}
+                    className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
+                  >
+                    X
+                  </span>
+                  <div className="flex gap-2 w-full text-black">
                     <input
                       {...register(`timeRange.${index}.startTime`, { validate: (value) => validateTimeRange(index, value, "start") })}
                       placeholder="Начало времени"
@@ -135,13 +150,26 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
             <Button onClick={() => timeRangeArray.append({ startTime: "", endTime: "" })} className={"border"}>
               Добавить время
             </Button>
-            <div className="max-h-60 overflow-y-auto flex flex-col gap-2">
+            <div className="max-h-60 overflow-y-auto flex flex-col gap-2 relative">
               {classRoomsArray.fields.map((field, index) => (
-                <div className="flex flex-col gap-2 text-black" key={field.id}>
+                <div className="flex flex-col gap-2 text-black relative" key={field.id}>
+                  <span
+                    onClick={() => {
+                      if (classRoomsArray.fields.length > 1) {
+                        classRoomsArray.remove(index)
+                      }
+                    }}
+                    className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
+                  >
+                    X
+                  </span>
                   <div className="flex gap-2 w-full">
                     <input
-                      {...register(`classRooms.${index}.name`, { required: "Поле обязательно для заполнения",validate:(v)=> v.trim().length > 0 })}
-                      placeholder="Начало времени"
+                      {...register(`classRooms.${index}.name`, {
+                        required: "Поле обязательно для заполнения",
+                        validate: (v) => v.trim().length > 0,
+                      })}
+                      placeholder="Название кабинета"
                       className={`${errors.classRooms?.[index]?.name ? "border-red-500" : ""} flex-1`}
                     />
                   </div>
@@ -153,6 +181,38 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
             </div>
             <Button onClick={() => classRoomsArray.append({ name: "" })} className={"border"}>
               Добавить кабинет
+            </Button>
+            <div className="max-h-60 overflow-y-auto flex flex-col gap-2">
+              {subjectsArray.fields.map((field, index) => (
+                <div className="flex flex-col gap-2 text-black relative" key={field.id}>
+                  <span
+                    onClick={() => {
+                      if (subjectsArray.fields.length > 1) {
+                        subjectsArray.remove(index)
+                      }
+                    }}
+                    className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
+                  >
+                    X
+                  </span>
+                  <div className="flex gap-2 w-full">
+                    <input
+                      {...register(`subjects.${index}.name`, {
+                        required: "Поле обязательно для заполнения",
+                        validate: (v) => v.trim().length > 0,
+                      })}
+                      placeholder="Название предмета"
+                      className={`${errors.subjects?.[index]?.name ? "border-red-500" : ""} flex-1`}
+                    />
+                  </div>
+                  {errors.subjects?.[index]?.name && (
+                    <span className="text-red-500 text-sm">{errors.subjects[index]?.name.message?.toString()}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <Button onClick={() => subjectsArray.append({ name: "" })} className={"border"}>
+              Добавить предмет
             </Button>
             <Button type="submit" className="bg-blue-500 text-white">
               Сохранить
