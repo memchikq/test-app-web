@@ -9,7 +9,7 @@ interface CreateTemplateModalProps {
 }
 interface Inputs {
   name: string
-  timeRange: {
+  timeRanges: {
     startTime: string
     endTime: string
   }[]
@@ -29,16 +29,16 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     control,
     formState: { errors },
   } = useForm<Inputs>({
-    defaultValues:{
-        classRooms:[{name:""}],
-        name:"",
-        subjects:[{name:""}],
-        timeRange:[{startTime:"",endTime:""}]
-    }
+    defaultValues: {
+      classRooms: [{ name: "" }],
+      name: "",
+      subjects: [{ name: "" }],
+      timeRanges: [{ startTime: "", endTime: "" }],
+    },
   })
-  const timeRangeArray = useFieldArray({
+  const timeRangesArray = useFieldArray({
     control,
-    name: "timeRange",
+    name: "timeRanges",
   })
   const classRoomsArray = useFieldArray({
     control,
@@ -48,26 +48,24 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     control,
     name: "subjects",
   })
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+      await refetchGroupData()
+      closeModal()
+    } catch (error) {
+      alert("Ошибка")
+    }
+  }
 
-  //   const onSubmit = async (e: React.FormEvent) => {
-  //     try {
-  //       e.preventDefault()
-  //       await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/group/create`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         // body: JSON.stringify({ name }),
-  //       })
-  //       await refetchGroupData()
-  //       closeModal()
-  //     } catch (error) {
-  //       alert("Ошибка")
-  //     }
-  //   }
-  const validateTimeRange = (index: number, value: string, type: "start" | "end") => {
-    const timeRange = watch("timeRange")
+  const validatetimeRanges = (index: number, value: string, type: "start" | "end") => {
+    const timeRanges = watch("timeRanges")
 
     if (!value) {
       return "Поле обязательно для заполнения"
@@ -80,7 +78,7 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
 
     if (type === "start") {
       if (index > 0) {
-        const previousEndTime = timeRange[index - 1]?.endTime
+        const previousEndTime = timeRanges[index - 1]?.endTime
 
         if (!previousEndTime) {
           return "Предыдущее время окончания не задано"
@@ -93,7 +91,7 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     }
 
     if (type === "end") {
-      const currentStartTime = timeRange[index]?.startTime
+      const currentStartTime = timeRanges[index]?.startTime
 
       if (!currentStartTime) {
         return "Время начала не задано"
@@ -114,12 +112,12 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh] overflow-auto gap-2">
             <input {...register("name")} placeholder="Название шаблона" />
             <div className="max-h-60 overflow-y-auto flex flex-col gap-2">
-              {timeRangeArray.fields.map((field, index) => (
+              {timeRangesArray.fields.map((field, index) => (
                 <div className="flex flex-col gap-2 text-blackn relative" key={field.id}>
                   <span
                     onClick={() => {
-                      if (timeRangeArray.fields.length > 1) {
-                        timeRangeArray.remove(index)
+                      if (timeRangesArray.fields.length > 1) {
+                        timeRangesArray.remove(index)
                       }
                     }}
                     className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
@@ -128,26 +126,26 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
                   </span>
                   <div className="flex gap-2 w-full text-black">
                     <input
-                      {...register(`timeRange.${index}.startTime`, { validate: (value) => validateTimeRange(index, value, "start") })}
+                      {...register(`timeRanges.${index}.startTime`, { validate: (value) => validatetimeRanges(index, value, "start") })}
                       placeholder="Начало времени"
-                      className={`${errors.timeRange?.[index]?.startTime ? "border-red-500 border" : ""} flex-1`}
+                      className={`${errors.timeRanges?.[index]?.startTime ? "border-red-500 border" : ""} flex-1`}
                     />
                     <input
-                      {...register(`timeRange.${index}.endTime`, { validate: (value) => validateTimeRange(index, value, "end") })}
+                      {...register(`timeRanges.${index}.endTime`, { validate: (value) => validatetimeRanges(index, value, "end") })}
                       placeholder="Конец времени"
-                      className={`${errors.timeRange?.[index]?.endTime ? "border-red-500" : ""} flex-1`}
+                      className={`${errors.timeRanges?.[index]?.endTime ? "border-red-500" : ""} flex-1`}
                     />
                   </div>
-                  {errors.timeRange?.[index]?.startTime && (
-                    <span className="text-red-500 text-sm">{errors.timeRange[index]?.startTime?.message?.toString()}</span>
+                  {errors.timeRanges?.[index]?.startTime && (
+                    <span className="text-red-500 text-sm">{errors.timeRanges[index]?.startTime?.message?.toString()}</span>
                   )}
-                  {errors.timeRange?.[index]?.endTime && (
-                    <span className="text-red-500 text-sm">{errors.timeRange[index]?.endTime?.message?.toString()}</span>
+                  {errors.timeRanges?.[index]?.endTime && (
+                    <span className="text-red-500 text-sm">{errors.timeRanges[index]?.endTime?.message?.toString()}</span>
                   )}
                 </div>
               ))}
             </div>
-            <Button onClick={() => timeRangeArray.append({ startTime: "", endTime: "" })} className={"border"}>
+            <Button onClick={() => timeRangesArray.append({ startTime: "", endTime: "" })} className={"border"}>
               Добавить время
             </Button>
             <div className="max-h-60 overflow-y-auto flex flex-col gap-2 relative">

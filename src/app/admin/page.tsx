@@ -7,13 +7,18 @@ async function fetchGroupData() {
   if (!res.ok) throw new Error("Ошибка получения данных")
   return res.json()
 }
+async function fetchTemplateData() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template`, { cache: "no-store" })
+  if (!res.ok) throw new Error("Ошибка получения данных")
+  return res.json()
+}
 
 const Page = async () => {
-  const groupData = await fetchGroupData()
+  const [groupData,templateData] = await Promise.all([fetchGroupData(), fetchTemplateData()])
   return ( 
     <div className="h-screen w-full flex flex-col gap-4  ">
       <div className="flex gap-3 justify-evenly w-full">
-        <Template  />
+        <Template templateData={templateData} />
         <Group groupData={groupData} />
       </div>
     </div>
