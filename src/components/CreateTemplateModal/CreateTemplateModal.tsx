@@ -1,11 +1,12 @@
+import { IClassRoom } from "@/types/classroom.type"
 import { Button, Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react"
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form"
 
 interface CreateTemplateModalProps {
   openModal: boolean
   closeModal: () => void
-  refetchGroupData: () => Promise<void>
+  refetchTemplateData: () => Promise<void>
 }
 interface Inputs {
   name: string
@@ -14,14 +15,16 @@ interface Inputs {
     endTime: string
   }[]
   classRooms: {
-    name: string
+    id: string
   }[]
   subjects: {
-    name: string
+    id: string
   }[]
 }
 
-const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchGroupData, closeModal }) => {
+const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchTemplateData, closeModal }) => {
+  const [classRoms, setClassRooms] = useState<IClassRoom[]>([])
+  const [subject, setSubject] = useState<IClassRoom[]>([])
   const {
     register,
     handleSubmit,
@@ -30,9 +33,9 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     formState: { errors },
   } = useForm<Inputs>({
     defaultValues: {
-      classRooms: [{ name: "" }],
+      classRooms: [{ id: "" }],
       name: "",
-      subjects: [{ name: "" }],
+      subjects: [{ id: "" }],
       timeRanges: [{ startTime: "", endTime: "" }],
     },
   })
@@ -40,24 +43,50 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
     control,
     name: "timeRanges",
   })
-  const classRoomsArray = useFieldArray({
-    control,
-    name: "classRooms",
-  })
-  const subjectsArray = useFieldArray({
-    control,
-    name: "subjects",
-  })
+  const getClassRooms = async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/classroom`)
+    const data = await response.json()
+    setClassRooms(data)
+  }
+  useEffect(() => {
+    getClassRooms()
+  }, [])
+  const getSubjects = async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/subject`)
+    const data = await response.json()
+    setSubject(data)
+  }
+  useEffect(() => {
+    getClassRooms()
+    getSubjects()
+  }, [])
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const classRooms = data.classRooms.filter(v=> v.id).map(v=> v.id)
+    const subjects = data.subjects.filter(v=> v.id).map(v=> v.id)
+    if(!classRooms.length){
+      alert("Нудно указать аудитории")
+      return
+    }
+    if(!subjects.length){
+      alert("Нудно указать предметы")
+      return
+    }
     try {
+      console.log("data", data)
+      const body={
+        name:data.name,
+        classRooms,
+        subjects,
+        timeRanges:data.timeRanges
+      }
       await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
       })
-      await refetchGroupData()
+      await refetchTemplateData()
       closeModal()
     } catch (error) {
       alert("Ошибка")
@@ -149,69 +178,42 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchG
               Добавить время
             </Button>
             <div className="max-h-60 overflow-y-auto flex flex-col gap-2 relative">
-              {classRoomsArray.fields.map((field, index) => (
-                <div className="flex flex-col gap-2 text-black relative" key={field.id}>
-                  <span
-                    onClick={() => {
-                      if (classRoomsArray.fields.length > 1) {
-                        classRoomsArray.remove(index)
-                      }
-                    }}
-                    className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
-                  >
-                    X
-                  </span>
-                  <div className="flex gap-2 w-full">
+              <p>Добавить кабинет</p>
+              {classRoms.map((field, index) => (
+                <div className="flex flex-col gap-2  relative" key={field._id}>
+                  <div className="flex gap-2 w-full text-white">
+                    <p>{field.name}</p>
                     <input
-                      {...register(`classRooms.${index}.name`, {
-                        required: "Поле обязательно для заполнения",
-                        validate: (v) => v.trim().length > 0,
-                      })}
+                      value={field._id}
+                      {...register(`classRooms.${index}.id`, {})}
                       placeholder="Название кабинета"
-                      className={`${errors.classRooms?.[index]?.name ? "border-red-500" : ""} flex-1`}
+                      type="checkbox"
+                      className={`${errors.classRooms?.[index]?.id ? "border-red-500" : ""}`}
                     />
                   </div>
-                  {errors.classRooms?.[index]?.name && (
-                    <span className="text-red-500 text-sm">{errors.classRooms[index]?.name.message?.toString()}</span>
-                  )}
                 </div>
               ))}
             </div>
-            <Button onClick={() => classRoomsArray.append({ name: "" })} className={"border"}>
-              Добавить кабинет
-            </Button>
             <div className="max-h-60 overflow-y-auto flex flex-col gap-2">
-              {subjectsArray.fields.map((field, index) => (
-                <div className="flex flex-col gap-2 text-black relative" key={field.id}>
-                  <span
-                    onClick={() => {
-                      if (subjectsArray.fields.length > 1) {
-                        subjectsArray.remove(index)
-                      }
-                    }}
-                    className="absolute top-0 right-0 text-red-500 cursor-pointer font-bold"
-                  >
-                    X
-                  </span>
-                  <div className="flex gap-2 w-full">
+              <p>Добавить предмет</p>
+              {subject.map((field, index) => (
+                <div className="flex flex-col gap-2  relative" key={field._id}>
+                  <div className="flex gap-2 w-full text-white">
+                    <p>{field.name}</p>
                     <input
-                      {...register(`subjects.${index}.name`, {
-                        required: "Поле обязательно для заполнения",
-                        validate: (v) => v.trim().length > 0,
-                      })}
+                      {...register(`subjects.${index}.id`)}
+                      value={field._id}
+                      type="checkbox"
                       placeholder="Название предмета"
-                      className={`${errors.subjects?.[index]?.name ? "border-red-500" : ""} flex-1`}
+                      className={`${errors.subjects?.[index]?.id ? "border-red-500" : ""} flex-1`}
                     />
                   </div>
-                  {errors.subjects?.[index]?.name && (
-                    <span className="text-red-500 text-sm">{errors.subjects[index]?.name.message?.toString()}</span>
+                  {errors.subjects?.[index]?.id && (
+                    <span className="text-red-500 text-sm">{errors.subjects[index]?.id.message?.toString()}</span>
                   )}
                 </div>
               ))}
             </div>
-            <Button onClick={() => subjectsArray.append({ name: "" })} className={"border"}>
-              Добавить предмет
-            </Button>
             <Button type="submit" className="bg-blue-500 text-white">
               Сохранить
             </Button>
