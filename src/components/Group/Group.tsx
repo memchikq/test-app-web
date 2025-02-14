@@ -4,13 +4,13 @@ import { IGroup } from "@/types/group.type"
 import { Button } from "@headlessui/react"
 import { FC, useState } from "react"
 import CreateGroupModal from "../CreateGroupModal/CreateGroupModal"
+import ApiService from "@/service/ApiService"
 
 const Group: FC<{ groupData: IGroup[] }> = ({ groupData }) => {
   const [groups, setGroups] = useState<IGroup[]>(groupData || [])
   const [openModal, setOpenModal] = useState(false)
   const refetchGroupData = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/group`)
-    const data = await response.json()
+    const data = await ApiService.groupApiService.getGroup()
     setGroups(data)
   }
 

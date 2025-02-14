@@ -1,3 +1,4 @@
+import ApiService from "@/service/ApiService"
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
 import { FC, useState } from "react"
 
@@ -12,13 +13,7 @@ const CreateSubjectModal: FC<CreateSubjectModalProps> = ({ openModal, closeModal
 
   const handleSubmit = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/subject/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      })
+      await ApiService.templateApiService.createSubject(name)
       await refetchSubjectData()
       closeModal()
     } catch (error) {

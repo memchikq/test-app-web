@@ -1,3 +1,4 @@
+import ApiService from "@/service/ApiService"
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react"
 import { FC, useState } from "react"
 
@@ -12,13 +13,7 @@ const CreateClassRoomModal: FC<CreateClassRoomModalProps> = ({ openModal, closeM
 
   const handleSubmit = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/classroom/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      })
+      await ApiService.templateApiService.createClassRooms(name)
       await refetchClassRoomData()
       closeModal()
     } catch (error) {

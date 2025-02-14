@@ -4,6 +4,7 @@ import { Button } from "@headlessui/react"
 import { FC, useState } from "react"
 import CreateSubjectModal from "../CreateSubjectModal/CreateSubjectModal"
 import { ISubject } from "@/types/subject.types"
+import ApiService from "@/service/ApiService"
 
 interface SubjectProps {
   subjectData: ISubject[]
@@ -13,8 +14,7 @@ const Subject: FC<SubjectProps> = ({ subjectData }) => {
   const [openModal, setOpenModal] = useState(false)
   const [subjects, setSubjects] = useState<ISubject[]>(subjectData || [])
   const refetchSubjectData = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/subject`)
-    const data = await response.json()
+    const data = await ApiService.templateApiService.getTemplateSubject()
     setSubjects(data)
   }
 

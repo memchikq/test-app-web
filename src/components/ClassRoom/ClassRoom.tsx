@@ -1,5 +1,6 @@
 "use client"
 import CreateClassRoomModal from "@/components/CreateClassRoomModal/CreateClassRoomModal"
+import ApiService from "@/service/ApiService"
 import { IClassRoom } from "@/types/classroom.type"
 
 import { Button } from "@headlessui/react"
@@ -13,8 +14,7 @@ const ClassRoom: FC<ClassRoomProps> = ({ classRoomData }) => {
   const [openModal, setOpenModal] = useState(false)
   const [classRooms, setClassRooms] = useState<IClassRoom[]>(classRoomData || [])
   const refetchClassRoomData = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/classroom`)
-    const data = await response.json()
+    const data = await ApiService.templateApiService.getTemplateClassRooms()
     setClassRooms(data)
   }
 

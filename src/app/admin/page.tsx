@@ -2,22 +2,17 @@ import ClassRoom from "@/components/ClassRoom/ClassRoom"
 import Group from "@/components/Group/Group"
 import Subject from "@/components/Subject/Subject"
 import Template from "@/components/Template/Template"
+import ApiService from "@/service/ApiService"
 import React from "react"
-
-async function fetchData(endpoint: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/${endpoint}`, { next: { revalidate: 5 } })
-  if (!res.ok) throw new Error(`Ошибка получения данных для ${endpoint}`)
-  return res.json()
-}
 
 const Page = async () => {
   let groupData, templateData, classRoomData, subjectData
   try {
     ;[groupData, templateData, classRoomData, subjectData] = await Promise.all([
-      fetchData("group"),
-      fetchData("template"),
-      fetchData("template/classroom"),
-      fetchData("template/subject"),
+      ApiService.groupApiService.getGroup(),
+      ApiService.templateApiService.getTemplate(),
+      ApiService.templateApiService.getTemplateClassRooms(),
+      ApiService.templateApiService.getTemplateSubject(),
     ])
   } catch (error) {
     console.error(error)

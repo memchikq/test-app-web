@@ -1,3 +1,4 @@
+import ApiService from "@/service/ApiService"
 import { IClassRoom } from "@/types/classroom.type"
 import { Button, Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react"
 import { FC, useEffect, useState } from "react"
@@ -44,16 +45,14 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchT
     name: "timeRanges",
   })
   const getClassRooms = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/classroom`)
-    const data = await response.json()
+    const data = await ApiService.templateApiService.getTemplateClassRooms()
     setClassRooms(data)
   }
   useEffect(() => {
     getClassRooms()
   }, [])
   const getSubjects = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/subject`)
-    const data = await response.json()
+    const data = await ApiService.templateApiService.getTemplateClassRooms()
     setSubject(data)
   }
   useEffect(() => {
@@ -61,31 +60,25 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchT
     getSubjects()
   }, [])
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const classRooms = data.classRooms.filter(v=> v.id).map(v=> v.id)
-    const subjects = data.subjects.filter(v=> v.id).map(v=> v.id)
-    if(!classRooms.length){
+    const classRooms = data.classRooms.filter((v) => v.id).map((v) => v.id)
+    const subjects = data.subjects.filter((v) => v.id).map((v) => v.id)
+    if (!classRooms.length) {
       alert("Нудно указать аудитории")
       return
     }
-    if(!subjects.length){
+    if (!subjects.length) {
       alert("Нудно указать предметы")
       return
     }
     try {
       console.log("data", data)
-      const body={
-        name:data.name,
+      const body: ICreateTemplateBody = {
+        name: data.name,
         classRooms,
         subjects,
-        timeRanges:data.timeRanges
+        timeRanges: data.timeRanges,
       }
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      })
+      await ApiService.templateApiService.createTemplate(body)
       await refetchTemplateData()
       closeModal()
     } catch (error) {

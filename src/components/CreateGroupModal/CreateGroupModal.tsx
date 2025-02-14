@@ -1,3 +1,4 @@
+import ApiService from "@/service/ApiService"
 import { Button, Dialog, DialogPanel, DialogTitle, Input } from "@headlessui/react"
 import { FC, useState } from "react"
 
@@ -13,13 +14,7 @@ const CreateGroupModal: FC<CreateGroupModalProps> = ({ openModal, refetchGroupDa
   const onSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault()
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/group/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      })
+      await ApiService.groupApiService.createGroup(name)
       await refetchGroupData()
       closeModal()
     } catch (error) {
