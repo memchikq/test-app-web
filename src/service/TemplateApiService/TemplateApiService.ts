@@ -4,6 +4,11 @@ class TemplateApiService {
     const data = await response.json()
     return data
   }
+  async getTemplateIdList() {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/id/list`)
+    const data = await response.json()
+    return data
+  }
   async getTemplateClassRooms() {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/template/classroom`)
     const data = await response.json()

@@ -52,7 +52,7 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchT
     getClassRooms()
   }, [])
   const getSubjects = async () => {
-    const data = await ApiService.templateApiService.getTemplateClassRooms()
+    const data = await ApiService.templateApiService.getTemplateSubject()
     setSubject(data)
   }
   useEffect(() => {
