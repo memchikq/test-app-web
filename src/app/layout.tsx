@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ClientSideToastContainer from "@/components/ToastifyContainer/ToastifyContainer";
 
 export default function RootLayout({
   children,
@@ -10,6 +11,7 @@ export default function RootLayout({
     <html lang="ru">
       <body
       >
+        <ClientSideToastContainer />
         {children}
       </body>
     </html>

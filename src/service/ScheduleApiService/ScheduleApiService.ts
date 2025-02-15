@@ -1,11 +1,22 @@
 class ScheduleApiService {
-  async generateSechedule(templateId: string) {
+  async generateSechedule(templateId: string, numberVisits: number) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/generate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ templateId }),
+      body: JSON.stringify({ templateId, numberVisits }),
+    })
+    const data = await response.json()
+    return data
+  }
+  async regenerateSechedule(templateId: string, numberVisits: number) {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/regenerate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ templateId, numberVisits }),
     })
     const data = await response.json()
     return data
@@ -17,6 +28,17 @@ class ScheduleApiService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ payload }),
+    })
+    const data = await response.json()
+    return data
+  }
+  async updateLockStudentGroup(payload: { id: string; lock: boolean }) {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/${payload.id}/lock`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ lock: payload.lock }),
     })
     const data = await response.json()
     return data

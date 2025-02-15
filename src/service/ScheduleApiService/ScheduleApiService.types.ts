@@ -20,6 +20,7 @@ export interface ISchedule {
   }
   
   export interface ITimeSlot {
+    _id: string;
     startTime: string;
     endTime: string;
   }
