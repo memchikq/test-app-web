@@ -22,11 +22,10 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
       toast.error("Ошибка получения данных расписания")
     }
   }
-  console.log('sc',schedule)
   const updateOrderOnServer = async (updatedSchedule: ISchedule[]) => {
     try {
       const payload = updatedSchedule.map((item) => ({
-        id: item.originalId,
+        id: item._id,
         order: item.order,
       }))
       await ApiService.scheduleApiService.updateScheduleGroupOrder(payload)
@@ -76,7 +75,7 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
   const handleRegenerate = async () => {
     try {
       setLoading(true)
-      await ApiService.scheduleApiService.regenerateSechedule(templateId, +numberVisits)
+      await ApiService.scheduleApiService.regenerateSechedule(templateId)
       await handleRefectScheduleData()
       toast.success("Успешная пересборка расписания")
     } catch (error) {
@@ -101,20 +100,24 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
       <div className="p-4 flex justify-between items-center">
         <h2 className="text-xl font-bold text-white">Расписание</h2>
         <div className="gap-2">
-          <input
-            value={numberVisits}
-            // @ts-ignore
-            onChange={(e) => setNumberVisits(e.target.value)}
-            type="number"
-            placeholder="Количество посещений"
-            className="bg-slate-600 py-2 rounded-md px-2"
-          />
+          {!schedule.length ? (
+            <input
+              value={numberVisits}
+              // @ts-ignore
+              onChange={(e) => setNumberVisits(e.target.value)}
+              type="number"
+              placeholder="Количество посещений"
+              className="bg-slate-600 py-2 rounded-md px-2"
+            />
+          ) : (
+            ""
+          )}
           <button
             disabled={loading}
-            onClick={!schedule.length ? handleGenerate:handleRegenerate}
+            onClick={!schedule.length ? handleGenerate : handleRegenerate}
             className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-300"
           >
-            {schedule.length ? "Пересобрать":"Генерировать"}
+            {schedule.length ? "Пересобрать" : "Генерировать"}
           </button>
         </div>
       </div>

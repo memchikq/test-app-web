@@ -10,13 +10,13 @@ class ScheduleApiService {
     const data = await response.json()
     return data
   }
-  async regenerateSechedule(templateId: string, numberVisits: number) {
+  async regenerateSechedule(templateId: string) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/regenerate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ templateId, numberVisits }),
+      body: JSON.stringify({ templateId }),
     })
     const data = await response.json()
     return data
