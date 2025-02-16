@@ -5,6 +5,7 @@ import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react"
 import { FC, useState } from "react"
 import { toast } from "react-toastify"
 import UpdateScheduleClassroomModal from "../UpdateScheduleClassroomModal/UpdateScheduleClassroomModal"
+import UpdateScheduleSubjectModal from "../UpdateScheduleSubjectModal/UpdateScheduleSubjectModal"
 
 interface ScheduleTableProps {
   data: ISchedule[]
@@ -18,7 +19,7 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
   const [loading, setLoading] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<null | {id:string,slot:ISlot}>(null)
   const [openUpdateClassroomModal, setOpenUpdateClassroomModal] = useState(false)
-  console.log("sc", schedule)
+  const [openUpdateSubjectModal, setOpenUpdateSubjectModal] = useState(false)
   const handleRefectScheduleData = async () => {
     try {
       const data = await ApiService.scheduleApiService.getSchedule(templateId)
@@ -69,8 +70,10 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
     setSelectedSlot({id,slot})
     setOpenUpdateClassroomModal(true)
   }
-
-  console.log("selec",selectedSlot)
+  const handleUpdateSubjectOpenModal = (id:string,slot: ISlot) => {
+    setSelectedSlot({id,slot})
+    setOpenUpdateSubjectModal(true)
+  }
 
   const handleGenerate = async () => {
     try {
@@ -183,7 +186,7 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
                         <p onClick={() => handleUpdateClassroomOpenModal(v._id,s)} className="p-2 cursor-pointer">
                           Изменить аудиторию
                         </p>
-                        <p className="p-2 cursor-pointer">Изменить предмет</p>
+                        <p  onClick={() => handleUpdateSubjectOpenModal(v._id,s)} className="p-2 cursor-pointer">Изменить предмет</p>
                       </PopoverPanel>
                     </Popover>
                   </td>
@@ -202,6 +205,14 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
           refetchData={handleRefectScheduleData}
           selectedSlot={selectedSlot}
           templateId={templateId}
+        />
+      )}
+      {openUpdateSubjectModal && selectedSlot && (
+        <UpdateScheduleSubjectModal
+          openModal={openUpdateSubjectModal}
+          closeModal={() => setOpenUpdateSubjectModal(false)}
+          refetchData={handleRefectScheduleData}
+          selectedSlot={selectedSlot}
         />
       )}
     </div>

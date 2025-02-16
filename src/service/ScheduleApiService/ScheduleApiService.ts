@@ -43,6 +43,17 @@ class ScheduleApiService {
     const data = await response.json()
     return data
   }
+  async updateScheduleSubject(payload: { id: string; classRoomId: string; timeSlotId: string }) {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/${payload.id}/edit/subject`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ subjectId : payload.classRoomId,timeSlotId:payload.timeSlotId }),
+    })
+    const data = await response.json()
+    return data
+  }
   async updateLockStudentGroup(payload: { id: string; lock: boolean }) {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/schedule/${payload.id}/lock`, {
       method: "PUT",

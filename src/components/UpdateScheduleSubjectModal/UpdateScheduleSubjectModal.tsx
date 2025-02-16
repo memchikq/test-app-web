@@ -6,19 +6,18 @@ import { FC, useEffect, useState } from "react"
 interface CreateSubjectModalProps {
   openModal: boolean
   selectedSlot: { id: string; slot: ISlot }
-  templateId: string
   refetchData: () => Promise<void>
   closeModal: () => void
 }
 
-const UpdateScheduleClassroomModal: FC<CreateSubjectModalProps> = ({ openModal, selectedSlot, templateId, closeModal, refetchData }) => {
-  const [selectedClassroomId, setSelectedClassroomId] = useState("")
-  const [availableClassrooms, setAvailableClassrooms] = useState<IClassroomData[]>([])
+const UpdateScheduleSubjectModal: FC<CreateSubjectModalProps> = ({ openModal, selectedSlot, closeModal, refetchData }) => {
+  const [selectedSubjectId, setSelectedSubjectId] = useState("")
+  const [subjects, setSubjects] = useState<IClassroomData[]>([])
   const handleSubmit = async () => {
     try {
-      await ApiService.scheduleApiService.updateScheduleClassroom({
+      await ApiService.scheduleApiService.updateScheduleSubject({
         id: selectedSlot.slot.groupData[0]._id,
-        classRoomId: selectedClassroomId,
+        classRoomId: selectedSubjectId,
         timeSlotId: selectedSlot.slot.timeSlot._id,
       })
       await refetchData()
@@ -28,24 +27,24 @@ const UpdateScheduleClassroomModal: FC<CreateSubjectModalProps> = ({ openModal, 
     }
   }
 
-  const getAvailableClassroom = async () => {
-    const data = await ApiService.scheduleApiService.getAvailableClassroom(selectedSlot.slot.timeSlot._id, templateId)
-    setAvailableClassrooms(data)
+  const getSubjects = async () => {
+    const data = await ApiService.templateApiService.getTemplateSubject()
+    setSubjects(data)
   }
 
   useEffect(() => {
-    if (selectedSlot) getAvailableClassroom()
+    if (selectedSlot) getSubjects()
   }, [selectedSlot])
   return (
     <Dialog open={openModal} onClose={closeModal} className="relative z-50 max-h-[80vh] overflow-auto">
       <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
         <DialogPanel className="w-1/2 space-y-4 bg-black border p-12 overflow-auto">
-          <DialogTitle className="font-bold ">Выберите доступную аудиторию</DialogTitle>
+          <DialogTitle className="font-bold ">Выберите предмет</DialogTitle>
 
-          {availableClassrooms.length ? (
+          {subjects.length ? (
             <div className="flex flex-col gap-2">
-              <Select onChange={(e) => setSelectedClassroomId(e.target.value)} className={"text-black"}>
-                {availableClassrooms.map((v) => (
+              <Select onChange={(e) => setSelectedSubjectId(e.target.value)} className={"text-black"}>
+                {subjects.map((v) => (
                   <option value={v._id} key={v._id}>
                     {v.name}
                   </option>
@@ -56,7 +55,7 @@ const UpdateScheduleClassroomModal: FC<CreateSubjectModalProps> = ({ openModal, 
               </Button>
             </div>
           ) : (
-            <h1>Нет доступных аудиторий</h1>
+            <h1>Нет доступных предметов</h1>
           )}
         </DialogPanel>
       </div>
@@ -64,4 +63,4 @@ const UpdateScheduleClassroomModal: FC<CreateSubjectModalProps> = ({ openModal, 
   )
 }
 
-export default UpdateScheduleClassroomModal
+export default UpdateScheduleSubjectModal

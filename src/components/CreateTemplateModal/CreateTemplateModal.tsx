@@ -71,7 +71,6 @@ const CreateTemplateModal: FC<CreateTemplateModalProps> = ({ openModal, refetchT
       return
     }
     try {
-      console.log("data", data)
       const body: ICreateTemplateBody = {
         name: data.name,
         classRooms,
