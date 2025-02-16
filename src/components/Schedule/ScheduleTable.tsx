@@ -1,8 +1,10 @@
 "use client"
 import ApiService from "@/service/ApiService"
-import { ISchedule } from "@/service/ScheduleApiService/ScheduleApiService.types"
+import { ISchedule, ISlot } from "@/service/ScheduleApiService/ScheduleApiService.types"
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react"
 import { FC, useState } from "react"
 import { toast } from "react-toastify"
+import UpdateScheduleClassroomModal from "../UpdateScheduleClassroomModal/UpdateScheduleClassroomModal"
 
 interface ScheduleTableProps {
   data: ISchedule[]
@@ -14,6 +16,9 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
   const [numberVisits, setNumberVisits] = useState(0)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
+  const [selectedSlot, setSelectedSlot] = useState<null | {id:string,slot:ISlot}>(null)
+  const [openUpdateClassroomModal, setOpenUpdateClassroomModal] = useState(false)
+  console.log("sc", schedule)
   const handleRefectScheduleData = async () => {
     try {
       const data = await ApiService.scheduleApiService.getSchedule(templateId)
@@ -59,6 +64,13 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
 
     setDraggedIndex(null)
   }
+
+  const handleUpdateClassroomOpenModal = (id:string,slot: ISlot) => {
+    setSelectedSlot({id,slot})
+    setOpenUpdateClassroomModal(true)
+  }
+
+  console.log("selec",selectedSlot)
 
   const handleGenerate = async () => {
     try {
@@ -163,7 +175,17 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
                 </th>
                 {v.slots.map((s, j) => (
                   <td key={j} className="py-3 px-4 text-center text-sm text-gray-300 border-b border-gray-700">
-                    {s?.subjectData?.[0]?.name} ({s?.classroomData?.[0]?.name})
+                    <Popover className="relative">
+                      <PopoverButton>
+                        {s?.subjectData?.[0]?.name} ({s?.classroomData?.[0]?.name})
+                      </PopoverButton>
+                      <PopoverPanel anchor="bottom" className="flex flex-col bg-slate-700">
+                        <p onClick={() => handleUpdateClassroomOpenModal(v._id,s)} className="p-2 cursor-pointer">
+                          Изменить аудиторию
+                        </p>
+                        <p className="p-2 cursor-pointer">Изменить предмет</p>
+                      </PopoverPanel>
+                    </Popover>
                   </td>
                 ))}
               </tr>
@@ -172,6 +194,15 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ data, templateId }) => {
         </table>
       ) : (
         <h1 className="text-center my-5 text-5xl">Нет расписания</h1>
+      )}
+      {openUpdateClassroomModal && selectedSlot && (
+        <UpdateScheduleClassroomModal
+          openModal={openUpdateClassroomModal}
+          closeModal={() => setOpenUpdateClassroomModal(false)}
+          refetchData={handleRefectScheduleData}
+          selectedSlot={selectedSlot}
+          templateId={templateId}
+        />
       )}
     </div>
   )
