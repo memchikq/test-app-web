@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Тестовое заданин
 
-## Getting Started
+Для запуска нужно скачать, установить зависимости через npm i, запустить сервер через npm run start:dev
 
-First, run the development server:
+Клиент запустить через npm run dev
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![icon](https://i.imgur.com/2KzHuUZ.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+![icon](https://i.imgur.com/XXj4VA9.png)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Нужно через админку добавить сначала группы ученико, аудитории и предметы, после этого добавить шаблон расписания.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+Чтобы создать шаблон нужно вбить время в формате 08:00:09:00
+выбрать предметы и аудитории, важно чтобы аудиторий было не меньше чем групп учащихся.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+![icon](https://i.imgur.com/enFRss0.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+После того как шаблон задан, нужно пеерейти в Расписание и выбрать шаблон по названию 
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![icon](https://i.imgur.com/9Y42UL9.png)
+![icon](https://i.imgur.com/6Jl11k1.png)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+После этого нужно вбить количество посещений и нажать кнопку
+![icon](https://i.imgur.com/gobT4ut.png)
+
+После генерации можно попробовать получить другое расписание пересобрав его кнопкой вверху
+
+![icon](https://i.imgur.com/5FbPFul.png)
+
+Под группой есть зеленая галочка, на нее можно нажать чтобы зафиксировать группу от пересборки.
+
+Группы можно перетаскивать чтобы менять им порядок, можно также изменить аудиторию и предмет у конкретной группы в конкретное время 
+![icon](https://i.imgur.com/WUHaDzn.png)
+
+
+Данные от моей тестовой базы данных хранятся в env, а подключается в app.module, ее можно заменить на свою если нужно 
